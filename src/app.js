@@ -1,45 +1,34 @@
 // index.js
-const XMLHttpRequest = require('xhr2');
+const axios = require("axios");
 
 // Define a handler function for the serverless function
 module.exports = (req, res) => {
-  // Create a new XMLHttpRequest object
-  const xhr = new XMLHttpRequest();
+  // Use axios to make a GET request to etherscan API
+  // You need to get an API key from https://etherscan.io/apis
+  const apiKey = "3BG8AYUPAAQKZDVIZVBGGVENB49D84NDMA";
+  const url = `https://api.etherscan.io/api?module=stats&action=ethprice&apikey=${apiKey}`;
 
-  // Use xhr2 to make a GET request to coingecko API
-  // You don't need an API key for coingecko
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`;
+  // Use the get method to make a GET request to the URL
+  axios
+    .get(url)
+    .then((response) => {
+      // Get the response data from the response object
+      const data = response.data;
 
-  // Set the response type to json
-  xhr.responseType = 'json';
+      // Check if the API returned a success result
+      if (data.status === "1") {
+        // Extract the ethusd field from the result
+        const ethPrice = data.result.ethusd;
 
-  // Open the request
-  xhr.open('GET', url);
-
-  // Set a callback function for when the request is done
-  xhr.onload = () => {
-    // Check if the status code is 200 (OK)
-    if (xhr.status === 200) {
-      // Get the response data from the xhr object
-      const data = xhr.response;
-
-      // Extract the ethereum.usd field from the data
-      const ethPrice = data.ethereum.usd;
-
-      // Send the ethPrice as a JSON object
-      res.json({ ethPrice });
-    } else {
-      // If the status code is not 200, send an error message as a JSON object
-      res.json({ error: `Request failed with status code ${xhr.status}` });
-    }
-  };
-
-  // Set a callback function for when the request fails
-  xhr.onerror = () => {
-    // Send an error message as a JSON object
-    res.json({ error: 'Request failed' });
-  };
-
-  // Send the request
-  xhr.send();
+        // Send the ethPrice as a JSON object
+        res.json({ ethPrice });
+      } else {
+        // If the API returned an error, send it as a JSON object
+        res.json({ error: data.message });
+      }
+    })
+    .catch((error) => {
+      // If something went wrong, send an error message as a JSON object
+      res.json({ error: error.message });
+    });
 };
