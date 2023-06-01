@@ -7,7 +7,9 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "lint": "eslint --fix src",
-    "test": "jest"
+    "test": "jest",
+    "vercel-build": "echo hello",
+    "type": "app"
   },
   "keywords": [],
   "author": "CJ R. <cj@null.computer> (https://w3cj.now.sh)",
@@ -17,11 +19,15 @@
   },
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "helmet": "^6.0.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "next": "^13.4.4",
+    "serverless-express": "^2.0.12",
+    "xhr2": "^0.2.1"
   },
   "devDependencies": {
     "eslint": "^8.35.0",

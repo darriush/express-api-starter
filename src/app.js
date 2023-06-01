@@ -1,29 +1,45 @@
-const express = require('express');
-const morgan = require('morgan');
-const helmet = require('helmet');
-const cors = require('cors');
+// index.js
+const XMLHttpRequest = require('xhr2');
 
-require('dotenv').config();
+// Define a handler function for the serverless function
+module.exports = (req, res) => {
+  // Create a new XMLHttpRequest object
+  const xhr = new XMLHttpRequest();
 
-const middlewares = require('./middlewares');
-const api = require('./api');
+  // Use xhr2 to make a GET request to coingecko API
+  // You don't need an API key for coingecko
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`;
 
-const app = express();
+  // Set the response type to json
+  xhr.responseType = 'json';
 
-app.use(morgan('dev'));
-app.use(helmet());
-app.use(cors());
-app.use(express.json());
+  // Open the request
+  xhr.open('GET', url);
 
-app.get('/', (req, res) => {
-  res.json({
-    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄',
-  });
-});
+  // Set a callback function for when the request is done
+  xhr.onload = () => {
+    // Check if the status code is 200 (OK)
+    if (xhr.status === 200) {
+      // Get the response data from the xhr object
+      const data = xhr.response;
 
-app.use('/api/v1', api);
+      // Extract the ethereum.usd field from the data
+      const ethPrice = data.ethereum.usd;
 
-app.use(middlewares.notFound);
-app.use(middlewares.errorHandler);
+      // Send the ethPrice as a JSON object
+      res.json({ ethPrice });
+    } else {
+      // If the status code is not 200, send an error message as a JSON object
+      res.json({ error: `Request failed with status code ${xhr.status}` });
+    }
+  };
 
-module.exports = app;
+  // Set a callback function for when the request fails
+  xhr.onerror = () => {
+    // Send an error message as a JSON object
+    res.json({ error: 'Request failed' });
+  };
+
+  // Send the request
+  xhr.send();
+};
